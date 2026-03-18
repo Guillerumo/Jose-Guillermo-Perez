@@ -6,10 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Harlow Malloc">
-<meta name="dcterms.date" content="2026-02-27">
+<meta name="author" content="José Guillermo Pérez">
+<meta name="dcterms.date" content="2026-03-18">
 
-<title>Post With Code – Jose-Guillermo-Perez</title>
+<title>Raspando dados de eleições no SERVEL - Chile | Web Scraping Chilean Elections – Jose-Guillermo-Perez</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -154,12 +154,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Post With Code</h1>
+      <h1 class="title">Raspando dados de eleições no SERVEL - Chile | Web Scraping Chilean Elections</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">news</div>
                 <div class="quarto-category">code</div>
                 <div class="quarto-category">analysis</div>
                 <div class="quarto-category">web scraping</div>
+                <div class="quarto-category">elections</div>
               </div>
                   </div>
   </div>
@@ -170,14 +170,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Author</div>
       <div class="quarto-title-meta-contents">
-               <p>Harlow Malloc </p>
+               <p>José Guillermo Pérez </p>
             </div>
     </div>
       
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">February 27, 2026</p>
+        <p class="date">March 18, 2026</p>
       </div>
     </div>
     
@@ -196,15 +196,210 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<p>This is a post with executable code.</p>
+<p>### Introdução / Introduction</p>
+<p>**PT:** Neste projeto, extraímos resultados históricos de eleições presidenciais do Chile (1989-2009). Como a página do SERVEL neste período é um site estático (os dados estão embutidos diretamente no código HTML, ao contrário de sites dinâmicos que exigem chamadas a APIs), podemos usar os pacotes `rvest` e `httr` para raspar as tabelas de forma direta e eficiente.</p>
+<p>**EN:** In this project, we extract historical presidential election results from Chile (1989-2009). Since the SERVEL website for this period is a static site (data is embedded directly in the HTML, unlike dynamic sites that require API calls), we can use the `rvest` and `httr` packages to scrape the tables directly and efficiently.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(httr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.0     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.2     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.1     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter()         masks stats::filter()
+✖ readr::guess_encoding() masks rvest::guess_encoding()
+✖ dplyr::lag()            masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+</div>
+<section id="teste-de-extração-extraction-test" class="level3">
+<h3 class="anchored" data-anchor-id="teste-de-extração-extraction-test">1. Teste de Extração / Extraction Test</h3>
+<p><strong>PT:</strong> Primeiro, disfarçamos nossa requisição como um navegador comum para evitar bloqueios e testamos a extração para um único ano (1989).</p>
+<p><strong>EN:</strong> First, we disguise our request as a standard web browser to avoid getting blocked, and test the extraction for a single year (1989).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">"https://historial.servel.cl/SitioHistorico/paginas/1989/presidencial1v/pais/candidatos/total/1.htm"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>response <span class="ot">&lt;-</span> <span class="fu">GET</span>(url, <span class="fu">user_agent</span>(<span class="st">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"</span>)) </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>page <span class="ot">&lt;-</span> <span class="fu">read_html</span>(response)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>todas_tabelas <span class="ot">&lt;-</span> page <span class="sc">|&gt;</span> </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="st">"table"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>eleicao_tabela <span class="ot">&lt;-</span> todas_tabelas[[<span class="dv">3</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="automação-e-iteração-automation-and-iteration" class="level3">
+<h3 class="anchored" data-anchor-id="automação-e-iteração-automation-and-iteration">2. Automação e Iteração / Automation and Iteration</h3>
+<p><strong>PT:</strong> Com a lógica validada, criamos um loop (bucle) para iterar sobre múltiplos anos eleitorais. O código identifica automaticamente os anos que tiveram segundo turno (segunda volta) e ajusta a URL.</p>
+<p><strong>EN:</strong> With the logic validated, we build a loop to iterate over multiple election years. The code automatically identifies years with runoff elections (second round) and adjusts the URL accordingly.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>anos <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1989</span>, <span class="dv">1993</span>, <span class="dv">1999</span>, <span class="dv">2005</span>, <span class="dv">2009</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>anos_segunda_volta <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1999</span>, <span class="dv">2005</span>, <span class="dv">2009</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>eleicoes_chile <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (ano <span class="cf">in</span> anos) { </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  vueltas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"presidencial1v"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (ano <span class="sc">%in%</span> anos_segunda_volta) {</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    vueltas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"presidencial1v"</span>, <span class="st">"presidencial2v"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (vuelta <span class="cf">in</span> vueltas) {</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    url_final <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"https://historial.servel.cl/SitioHistorico/paginas/"</span>, ano, <span class="st">"/"</span>, vuelta, <span class="st">"/pais/candidatos/total/1.htm"</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    response <span class="ot">&lt;-</span> <span class="fu">GET</span>(url_final, <span class="fu">user_agent</span>(<span class="st">"Mozilla/5.0"</span>), <span class="fu">config</span>(<span class="at">ssl_verifypeer =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    page <span class="ot">&lt;-</span> <span class="fu">read_html</span>(response)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    tabela_temp <span class="ot">&lt;-</span> page <span class="sc">|&gt;</span> </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">html_element</span>(<span class="at">xpath =</span> <span class="st">"(//table)[3]"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">html_table</span>()</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    tabela_temp <span class="ot">&lt;-</span> tabela_temp <span class="sc">|&gt;</span> </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">VOTOS =</span> <span class="fu">as.numeric</span>(<span class="fu">str_remove_all</span>(VOTOS, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>)),</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">PORCENTAJE =</span> <span class="fu">as.numeric</span>(<span class="fu">str_replace</span>(<span class="fu">str_remove_all</span>(PORCENTAJE, <span class="st">"%"</span>), <span class="st">","</span>, <span class="st">"."</span>)),</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">ANO =</span> ano,</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">VUELTA =</span> vuelta, </span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">partido =</span> <span class="cn">NA</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    eleicoes_chile <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(eleicoes_chile, tabela_temp)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(eleicoes_chile)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2</code></pre>
+<pre><code>                                NOMBRE   VOTOS PORCENTAJE
+1                     Hernán Büchi Buc 2052116      29.40
+2  Francisco Javier Errázuriz Talavera 1077172      15.43
+3               Patricio Aylwin Azócar 3850571      55.17
+4                 Válidamente Emitidos 6979859         NA
+5                     Manfred Max Neef  387102       5.55
+6              Eugenio Pizarro Poblete  327402       4.70
+7              Eduardo Frei Ruiz-Tagle 4040497      57.98
+8               Cristián Reitze Campos   81675       1.17
+9               Arturo Alessandri Besa 1701324      24.41
+10               José Piñera Echeñique  430950       6.18
+11                Válidamente Emitidos 6968950         NA
+12                 Arturo Frei Bolívar   26812       0.38
+13       Sara María Larraín Ruiz-Tagle   31319       0.44
+14                 Gladys Marín Millie  225224       3.19
+15            Tomas Hirsch Goldschmidt   36235       0.51
+16               Ricardo Lagos Escobar 3383339      47.96
+17               Joaquin Lavin Infante 3352199      47.51
+18                Válidamente Emitidos 7055128         NA
+19               Ricardo Lagos Escobar 3683158      51.31
+20               Joaquin Lavin Infante 3495569      48.69
+21                Válidamente Emitidos 7178727         NA
+22          Sebastián Piñera Echeñique 1763694      25.41
+23             Michelle Bachelet Jeria 3190691      45.96
+24            Tomas Hirsch Goldschmidt  375048       5.40
+25               Joaquín Lavin Infante 1612608      23.23
+26                Válidamente Emitidos 6942041         NA
+27          Sebastián Piñera Echeñique 3236394      46.50
+28             Michelle Bachelet Jeria 3723019      53.50
+29                Válidamente Emitidos 6959413         NA
+30              Jorge Arrate Mac-Niven  433195       6.21
+31      Marco Enríquez-Ominami Gumucio 1405124      20.14
+32          Sebastián Piñera Echenique 3074164      44.06
+33             Eduardo Frei Ruiz-Tagle 2065061      29.60
+34                Válidamente Emitidos 6977544         NA
+35          Sebastián Piñera Echenique 3591182      51.61
+36             Eduardo Frei Ruiz-Tagle 3367790      48.39
+37                Válidamente Emitidos 6958972         NA
+                         CARGO  ANO         VUELTA partido
+1                              1989 presidencial1v      NA
+2                              1989 presidencial1v      NA
+3                   Presidente 1989 presidencial1v      NA
+4                              1989 presidencial1v      NA
+5                              1993 presidencial1v      NA
+6                              1993 presidencial1v      NA
+7                   Presidente 1993 presidencial1v      NA
+8                              1993 presidencial1v      NA
+9                              1993 presidencial1v      NA
+10                             1993 presidencial1v      NA
+11                             1993 presidencial1v      NA
+12                             1999 presidencial1v      NA
+13                             1999 presidencial1v      NA
+14                             1999 presidencial1v      NA
+15                             1999 presidencial1v      NA
+16 Seleccionado Segunda Vuelta 1999 presidencial1v      NA
+17 Seleccionado Segunda Vuelta 1999 presidencial1v      NA
+18                             1999 presidencial1v      NA
+19                  Presidente 1999 presidencial2v      NA
+20                             1999 presidencial2v      NA
+21                             1999 presidencial2v      NA
+22 Seleccionado Segunda Vuelta 2005 presidencial1v      NA
+23 Seleccionado Segunda Vuelta 2005 presidencial1v      NA
+24                             2005 presidencial1v      NA
+25                             2005 presidencial1v      NA
+26                             2005 presidencial1v      NA
+27                             2005 presidencial2v      NA
+28                  Presidenta 2005 presidencial2v      NA
+29                             2005 presidencial2v      NA
+30                             2009 presidencial1v      NA
+31                             2009 presidencial1v      NA
+32 Seleccionado Segunda Vuelta 2009 presidencial1v      NA
+33 Seleccionado Segunda Vuelta 2009 presidencial1v      NA
+34                             2009 presidencial1v      NA
+35                  Presidente 2009 presidencial2v      NA
+36                             2009 presidencial2v      NA
+37                             2009 presidencial2v      NA</code></pre>
 </div>
+</div>
+</section>
+<section id="limpeza-de-dados-data-cleaning" class="level3">
+<h3 class="anchored" data-anchor-id="limpeza-de-dados-data-cleaning">3. Limpeza de Dados / Data Cleaning</h3>
+<p><strong>PT:</strong> Por fim, padronizamos os nomes das colunas, traduzimos os identificadores de turno e removemos as linhas de totais agregados para manter apenas os votos por candidato. <strong>EN:</strong> Finally, we standardize column names, translate round identifiers, and remove aggregate total rows to keep only the votes per candidate.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>eleicoes_chile <span class="ot">&lt;-</span> eleicoes_chile <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">nome =</span> NOMBRE, </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">votos =</span> VOTOS, </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">porcentagem =</span> PORCENTAJE, </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">cargo =</span> CARGO, </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">ano =</span> ANO, </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">volta =</span> VUELTA</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">volta =</span> <span class="fu">if_else</span>(volta <span class="sc">==</span> <span class="st">"presidencial1v"</span>, <span class="st">"primeira volta"</span>, <span class="st">"segunda volta"</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(nome <span class="sc">!=</span> <span class="st">"Válidamente Emitidos"</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(eleicoes_chile)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                 nome   votos porcentagem      cargo  ano
+1                    Hernán Büchi Buc 2052116       29.40            1989
+2 Francisco Javier Errázuriz Talavera 1077172       15.43            1989
+3              Patricio Aylwin Azócar 3850571       55.17 Presidente 1989
+4                    Manfred Max Neef  387102        5.55            1993
+5             Eugenio Pizarro Poblete  327402        4.70            1993
+6             Eduardo Frei Ruiz-Tagle 4040497       57.98 Presidente 1993
+           volta partido
+1 primeira volta      NA
+2 primeira volta      NA
+3 primeira volta      NA
+4 primeira volta      NA
+5 primeira volta      NA
+6 primeira volta      NA</code></pre>
+</div>
+</div>
+</section>
+<section id="exportação-export" class="level3">
+<h3 class="anchored" data-anchor-id="exportação-export">4. Exportação / Export</h3>
+<p><strong>PT:</strong> Salvamos o banco de dados final em formato CSV para análises futuras.</p>
+<p><strong>EN:</strong> We save the final database in CSV format for future analysis.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(eleicoes_chile, <span class="st">"elecciones_chile_1989_2009.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

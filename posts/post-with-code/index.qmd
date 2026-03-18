@@ -2,7 +2,7 @@
 title: "Raspando dados de eleições no SERVEL - Chile | Web Scraping Chilean Elections"
 author: "José Guillermo Pérez"
 date: "2026-03-18"
-categories: [news, code, analysis, web scraping]
+categories: [code, analysis, web scraping, elections]
 image: "image.jpg"
 ---
 
