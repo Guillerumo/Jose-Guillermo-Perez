@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Bem-vindo ao meu blog",
+    "section": "",
+    "text": "Bem-vindo ao meu portfólio de análise de dados.\nSou pesquisador quantitativo e doutorando em Ciência Política na UNICAMP, com formação em Sociologia e Ciências Sociais. Este site serve como um repositório prático do meu trabalho analítico.\nNeste blog, compartilharei projetos aplicados e estudos de caso demonstrando meu fluxo de trabalho utilizando ferramentas como R, Python, SQL e Power BI. O conteúdo focará em modelagem estatística, visualização de dados e metodologias quantitativas aplicadas às ciências sociais, opinião pública e desafios gerais de dados.\nFique à vontade para explorar as publicações e conferir exemplos dos meus processos e análises de dados.\n\nWelcome to my data analysis portfolio.\nI am a quantitative researcher and a PhD candidate in Political Science at UNICAMP, with a background in Sociology and Social Sciences. This site serves as a practical repository of my analytical work.\nIn this blog, I will share applied projects and case studies demonstrating my workflow using tools like R, Python, SQL, and Power BI. The content will focus on statistical modeling, data visualization, and quantitative methodologies applied to social sciences, public opinion, and general data challenges.\nFeel free to explore the posts to see examples of my data processes and analyses.\n\n\n\nMy profile picture"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Jose Guillermo Perez-Camacho",
+    "section": "",
+    "text": "Post With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nFeb 27, 2026\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nBem-vindo ao meu blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nFeb 24, 2026\n\n\nJosé Guillermo Pérez-Camacho\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this blog"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code.\n\n1 + 1\n\n[1] 2"
+  }
+]

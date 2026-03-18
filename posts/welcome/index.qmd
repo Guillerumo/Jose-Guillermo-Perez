@@ -1,0 +1,26 @@
+---
+title: "Bem-vindo ao meu blog"
+author: "José Guillermo Pérez-Camacho"
+date: "2026-02-24"
+categories: [news]
+---
+
+Bem-vindo ao meu portfólio de análise de dados.
+
+Sou pesquisador quantitativo e doutorando em Ciência Política na UNICAMP, com formação em Sociologia e Ciências Sociais. Este site serve como um repositório prático do meu trabalho analítico.
+
+Neste blog, compartilharei projetos aplicados e estudos de caso demonstrando meu fluxo de trabalho utilizando ferramentas como R, Python, SQL e Power BI. O conteúdo focará em modelagem estatística, visualização de dados e metodologias quantitativas aplicadas às ciências sociais, opinião pública e desafios gerais de dados.
+
+Fique à vontade para explorar as publicações e conferir exemplos dos meus processos e análises de dados.
+
+------------------------------------------------------------------------
+
+Welcome to my data analysis portfolio.
+
+I am a quantitative researcher and a PhD candidate in Political Science at UNICAMP, with a background in Sociology and Social Sciences. This site serves as a practical repository of my analytical work.
+
+In this blog, I will share applied projects and case studies demonstrating my workflow using tools like R, Python, SQL, and Power BI. The content will focus on statistical modeling, data visualization, and quantitative methodologies applied to social sciences, public opinion, and general data challenges.
+
+Feel free to explore the posts to see examples of my data processes and analyses.
+
+![My profile picture](guillermo.jpg)

@@ -1,0 +1,121 @@
+---
+title: "Raspando dados de eleições no SERVEL - Chile"
+author: "José Guillermo Pérez"
+date: "2026-02-27"
+categories: [news, code, analysis]
+image: "image.jpg"
+---
+
+```{r}
+install.packages("httr")
+```
+
+Primeiro vamos a chamar a libraria e estabelecer a URL. (En verdad quizá tenemos que empezar por una breve explicación de que es site estáticos y dinámicos)
+
+```{r}
+library(rvest)
+library(httr)
+
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+# 1. Send the request disguised as a Google Chrome browser
+url <- "https://historial.servel.cl/SitioHistorico/paginas/1989/presidencial1v/pais/candidatos/total/1.htm"
+response <- GET(url, user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"))
+```
+
+Depois lemos o link url
+
+```{r}
+page <- read_html(response)
+```
+
+Por último, extraímos a tabela com a informação da eleição.
+
+```{r}
+todas_tabelas <- page |> 
+  html_elements("table") |> 
+  html_table()
+
+eleicao_tabela <- todas_tabelas[[3]]
+
+print(eleicao_tabela)
+```
+
+```{r}
+?mutate()
+```
+
+```{r}
+library(dplyr)
+eleicao_tabela <-  eleicao_tabela |> 
+  mutate(
+    VOTOS = as.numeric(str_remove_all(VOTOS, "\\.")),
+    PORCENTAJE = as.numeric(str_replace_all(str_remove(PORCENTAJE, "[%]"), "[,]", "."))
+  )
+
+
+print(eleicao_tabela)
+  
+
+```
+
+```{r}
+eleicao_tabela <- eleicao_tabela |> 
+  rename(votos = VOTOS, porcentagem = PORCENTAJE, nome = NOMBRE, cargo = CARGO) |> 
+  mutate(ano = 1989, partido = NA)
+
+
+
+print(eleicao_tabela)
+```
+
+Agora iteração
+
+```{r}
+anos <- c(1989, 1993, 1999, 2005, 2009)
+anos_segunda_volta <- c(1999, 2005, 2009)
+eleicoes_chile <- data.frame()
+
+for (ano in anos) { 
+  if (ano %in% anos_segunda_volta)
+    {
+  url_final <- paste0("https://historial.servel.cl/SitioHistorico/paginas/", ano, "/presidencial2v/pais/candidatos/total/1.htm")
+  } else {
+    url_final <- paste0("https://historial.servel.cl/SitioHistorico/paginas/", ano, "/presidencial1v/pais/candidatos/total/1.htm")
+  }
+print(paste("Descargando año:", ano))
+print(url_final)
+
+response <- GET(url_final, user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"))
+page <- read_html(response)
+eleicao_tabela <- page |> 
+    html_element(xpath = "(//table)[3]") |> 
+    html_table()
+  
+  # 4. Limpiar datos y asignar el año correspondiente
+  eleicao_tabela <- eleicao_tabela |> 
+    mutate(
+      VOTOS = as.numeric(str_remove_all(VOTOS, "\\.")),
+      PORCENTAJE = as.numeric(str_replace(str_remove_all(PORCENTAJE, "%"), ",", ".")),
+      ANO = ano,
+      partido = NA
+    )
+  
+  # 5. Anexar al dataframe principal
+  eleicoes_chile <- bind_rows(eleicoes_chile, eleicao_tabela)
+}
+
+print(eleicoes_chile)
+
+```
+
+Salvando
+
+```{r}
+write.csv(eleicoes_chile, "elecciones_chile_1989_2009.csv", row.names = FALSE)
+```
