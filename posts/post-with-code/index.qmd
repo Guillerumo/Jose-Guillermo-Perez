@@ -6,11 +6,11 @@ categories: [code, analysis, web scraping, elections]
 image: "image.jpg"
 ---
 
-\### Introdução / Introduction
+# Introdução / Introduction
 
-\*\*PT:\*\* Neste projeto, extraímos resultados históricos de eleições presidenciais do Chile (1989-2009). Como a página do SERVEL neste período é um site estático (os dados estão embutidos diretamente no código HTML, ao contrário de sites dinâmicos que exigem chamadas a APIs), podemos usar os pacotes \`rvest\` e \`httr\` para raspar as tabelas de forma direta e eficiente.
+**PT:** Neste projeto, extraímos resultados históricos de eleições presidenciais do Chile (1989-2009). Como a página do SERVEL neste período é um site estático (os dados estão embutidos diretamente no código HTML, ao contrário de sites dinâmicos que exigem chamadas a APIs), podemos usar os pacotes \`rvest\` e \`httr\` para raspar as tabelas de forma direta e eficiente.
 
-\*\*EN:\*\* In this project, we extract historical presidential election results from Chile (1989-2009). Since the SERVEL website for this period is a static site (data is embedded directly in the HTML, unlike dynamic sites that require API calls), we can use the \`rvest\` and \`httr\` packages to scrape the tables directly and efficiently.
+**EN:** In this project, we extract historical presidential election results from Chile (1989-2009). Since the SERVEL website for this period is a static site (data is embedded directly in the HTML, unlike dynamic sites that require API calls), we can use the \`rvest\` and \`httr\` packages to scrape the tables directly and efficiently.
 
 ```{r}
 library(rvest)
