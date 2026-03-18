@@ -1,80 +1,47 @@
 ---
-title: "Raspando dados de eleições no SERVEL - Chile"
+title: "Raspando dados de eleições no SERVEL - Chile | Web Scraping Chilean Elections"
 author: "José Guillermo Pérez"
-date: "2026-02-27"
-categories: [news, code, analysis]
+date: "2026-03-18"
+categories: [news, code, analysis, web scraping]
 image: "image.jpg"
 ---
 
-```{r}
-install.packages("httr")
-```
+\### Introdução / Introduction
 
-Primeiro vamos a chamar a libraria e estabelecer a URL. (En verdad quizá tenemos que empezar por una breve explicación de que es site estáticos y dinámicos)
+\*\*PT:\*\* Neste projeto, extraímos resultados históricos de eleições presidenciais do Chile (1989-2009). Como a página do SERVEL neste período é um site estático (os dados estão embutidos diretamente no código HTML, ao contrário de sites dinâmicos que exigem chamadas a APIs), podemos usar os pacotes \`rvest\` e \`httr\` para raspar as tabelas de forma direta e eficiente.
+
+\*\*EN:\*\* In this project, we extract historical presidential election results from Chile (1989-2009). Since the SERVEL website for this period is a static site (data is embedded directly in the HTML, unlike dynamic sites that require API calls), we can use the \`rvest\` and \`httr\` packages to scrape the tables directly and efficiently.
 
 ```{r}
 library(rvest)
 library(httr)
-
-```
-
-```{r}
 library(tidyverse)
 ```
 
+### 1. Teste de Extração / Extraction Test
+
+**PT:** Primeiro, disfarçamos nossa requisição como um navegador comum para evitar bloqueios e testamos a extração para um único ano (1989).
+
+**EN:** First, we disguise our request as a standard web browser to avoid getting blocked, and test the extraction for a single year (1989).
+
 ```{r}
-# 1. Send the request disguised as a Google Chrome browser
 url <- "https://historial.servel.cl/SitioHistorico/paginas/1989/presidencial1v/pais/candidatos/total/1.htm"
-response <- GET(url, user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"))
-```
+response <- GET(url, user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")) 
 
-Depois lemos o link url
-
-```{r}
 page <- read_html(response)
-```
 
-Por último, extraímos a tabela com a informação da eleição.
-
-```{r}
 todas_tabelas <- page |> 
   html_elements("table") |> 
   html_table()
 
 eleicao_tabela <- todas_tabelas[[3]]
-
-print(eleicao_tabela)
 ```
 
-```{r}
-?mutate()
-```
+### 2. Automação e Iteração / Automation and Iteration
 
-```{r}
-library(dplyr)
-eleicao_tabela <-  eleicao_tabela |> 
-  mutate(
-    VOTOS = as.numeric(str_remove_all(VOTOS, "\\.")),
-    PORCENTAJE = as.numeric(str_replace_all(str_remove(PORCENTAJE, "[%]"), "[,]", "."))
-  )
+**PT:** Com a lógica validada, criamos um loop (bucle) para iterar sobre múltiplos anos eleitorais. O código identifica automaticamente os anos que tiveram segundo turno (segunda volta) e ajusta a URL.
 
-
-print(eleicao_tabela)
-  
-
-```
-
-```{r}
-eleicao_tabela <- eleicao_tabela |> 
-  rename(votos = VOTOS, porcentagem = PORCENTAJE, nome = NOMBRE, cargo = CARGO) |> 
-  mutate(ano = 1989, partido = NA)
-
-
-
-print(eleicao_tabela)
-```
-
-Agora iteração
+**EN:** With the logic validated, we build a loop to iterate over multiple election years. The code automatically identifies years with runoff elections (second round) and adjusts the URL accordingly.
 
 ```{r}
 anos <- c(1989, 1993, 1999, 2005, 2009)
@@ -82,39 +49,64 @@ anos_segunda_volta <- c(1999, 2005, 2009)
 eleicoes_chile <- data.frame()
 
 for (ano in anos) { 
-  if (ano %in% anos_segunda_volta)
-    {
-  url_final <- paste0("https://historial.servel.cl/SitioHistorico/paginas/", ano, "/presidencial2v/pais/candidatos/total/1.htm")
-  } else {
-    url_final <- paste0("https://historial.servel.cl/SitioHistorico/paginas/", ano, "/presidencial1v/pais/candidatos/total/1.htm")
+  
+  vueltas <- c("presidencial1v")
+  if (ano %in% anos_segunda_volta) {
+    vueltas <- c("presidencial1v", "presidencial2v")
   }
-print(paste("Descargando año:", ano))
-print(url_final)
-
-response <- GET(url_final, user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"))
-page <- read_html(response)
-eleicao_tabela <- page |> 
-    html_element(xpath = "(//table)[3]") |> 
-    html_table()
   
-  # 4. Limpiar datos y asignar el año correspondiente
-  eleicao_tabela <- eleicao_tabela |> 
-    mutate(
-      VOTOS = as.numeric(str_remove_all(VOTOS, "\\.")),
-      PORCENTAJE = as.numeric(str_replace(str_remove_all(PORCENTAJE, "%"), ",", ".")),
-      ANO = ano,
-      partido = NA
-    )
-  
-  # 5. Anexar al dataframe principal
-  eleicoes_chile <- bind_rows(eleicoes_chile, eleicao_tabela)
+  for (vuelta in vueltas) {
+    url_final <- paste0("https://historial.servel.cl/SitioHistorico/paginas/", ano, "/", vuelta, "/pais/candidatos/total/1.htm")
+    
+    response <- GET(url_final, user_agent("Mozilla/5.0"), config(ssl_verifypeer = FALSE))
+    page <- read_html(response)
+    
+    tabela_temp <- page |> 
+      html_element(xpath = "(//table)[3]") |> 
+      html_table()
+    
+    tabela_temp <- tabela_temp |> 
+      mutate(
+        VOTOS = as.numeric(str_remove_all(VOTOS, "\\.")),
+        PORCENTAJE = as.numeric(str_replace(str_remove_all(PORCENTAJE, "%"), ",", ".")),
+        ANO = ano,
+        VUELTA = vuelta, 
+        partido = NA
+      )
+    
+    eleicoes_chile <- bind_rows(eleicoes_chile, tabela_temp)
+  }
 }
-
 print(eleicoes_chile)
-
 ```
 
-Salvando
+### 3. Limpeza de Dados / Data Cleaning
+
+**PT:** Por fim, padronizamos os nomes das colunas, traduzimos os identificadores de turno e removemos as linhas de totais agregados para manter apenas os votos por candidato. **EN:** Finally, we standardize column names, translate round identifiers, and remove aggregate total rows to keep only the votes per candidate.
+
+```{r}
+eleicoes_chile <- eleicoes_chile |> 
+  rename(
+    nome = NOMBRE, 
+    votos = VOTOS, 
+    porcentagem = PORCENTAJE, 
+    cargo = CARGO, 
+    ano = ANO, 
+    volta = VUELTA
+  ) |> 
+  mutate(
+    volta = if_else(volta == "presidencial1v", "primeira volta", "segunda volta")
+  ) |> 
+  filter(nome != "Válidamente Emitidos")
+
+head(eleicoes_chile)
+```
+
+### 4. Exportação / Export
+
+**PT:** Salvamos o banco de dados final em formato CSV para análises futuras.
+
+**EN:** We save the final database in CSV format for future analysis.
 
 ```{r}
 write.csv(eleicoes_chile, "elecciones_chile_1989_2009.csv", row.names = FALSE)

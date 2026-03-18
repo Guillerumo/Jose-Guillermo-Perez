@@ -10,10 +10,10 @@
 <atom:link href="https://your-website-url.example.com/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog built with Quarto</description>
 <generator>quarto-1.8.25</generator>
-<lastBuildDate>Fri, 27 Feb 2026 03:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 18 Mar 2026 03:00:00 GMT</lastBuildDate>
 <item>
   <title>Post With Code</title>
-  <dc:creator>Harlow Malloc</dc:creator>
+  <dc:creator>José Guillermo Pérez</dc:creator>
   <link>https://your-website-url.example.com/posts/post-with-code/</link>
   <description><![CDATA[ 
 
@@ -41,8 +41,9 @@ font-style: inherit;">1</span></span></code></pre></div></div>
   <category>news</category>
   <category>code</category>
   <category>analysis</category>
+  <category>web scraping</category>
   <guid>https://your-website-url.example.com/posts/post-with-code/</guid>
-  <pubDate>Fri, 27 Feb 2026 03:00:00 GMT</pubDate>
+  <pubDate>Wed, 18 Mar 2026 03:00:00 GMT</pubDate>
   <media:content url="https://your-website-url.example.com/posts/post-with-code/image.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
