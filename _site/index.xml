@@ -14,7 +14,7 @@
 <item>
   <title>Raspando dados de eleições no SERVEL - Chile | Web Scraping Chilean Elections</title>
   <dc:creator>José Guillermo Pérez</dc:creator>
-  <link>https://your-website-url.example.com/posts/post-with-code/</link>
+  <link>https://your-website-url.example.com/posts/web-scrapping-elections/</link>
   <description><![CDATA[ 
 
 
@@ -470,9 +470,9 @@ font-style: inherit;">FALSE</span>)</span></code></pre></div></div>
   <category>analysis</category>
   <category>web scraping</category>
   <category>elections</category>
-  <guid>https://your-website-url.example.com/posts/post-with-code/</guid>
+  <guid>https://your-website-url.example.com/posts/web-scrapping-elections/</guid>
   <pubDate>Wed, 18 Mar 2026 03:00:00 GMT</pubDate>
-  <media:content url="https://your-website-url.example.com/posts/post-with-code/image.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://your-website-url.example.com/posts/web-scrapping-elections/image.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
   <title>Bem-vindo ao meu blog</title>
